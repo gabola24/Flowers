@@ -8,74 +8,7 @@ import json
 import pandas as pd
 import tensorflow as tf
 
-def read_content(xml_file: str):
-    tree = ET.parse(xml_file)
-    root = tree.getroot()
 
-    list_with_all_boxes = []
-    list_with_all_names = []
-
-    for boxes in root.iter('object'):
-
-        file_name = root.find('filename').text
-        file_path = root.find('path').text
-        name = boxes.find('name').text
-
-        ymin, xmin, ymax, xmax = None, None, None, None
-
-        for box in boxes.findall("bndbox"):
-            ymin = int(box.find("ymin").text)
-            xmin = int(box.find("xmin").text)
-            ymax = int(box.find("ymax").text)
-            xmax = int(box.find("xmax").text)
-
-        list_with_single_boxes = [xmin, ymin, xmax, ymax]
-        list_with_all_boxes.append(list_with_single_boxes)
-        list_with_all_names.append(name)
-
-    return file_path,file_name, list_with_all_boxes,list_with_all_names
-
-path='/home/gabriel24/MeetupDL/imagenes/'
-path_to_images='/home/gabriel24/MeetupDL/imagenes/origin/'
-dic='labels_map.json'
-
-def save_xmls(directory):
-    w=[]
-    for file in os.listdir(directory):
-        if file.endswith(".xml"):
-            w.append(read_content(directory+file))
-    return(w)
-
-
-def crops_and_metadata(directory,jason_dic,image_directory):
-    with open(jason_dic) as f:
-        dic = json.loads(f.read())
-    os.mkdir('recortes')
-    names,splits,labl=[],[],[]
-    for i in save_xmls(directory):
-        p=Image.open(image_directory+i[1])
-        p = np.asarray(p)
-        
-        for j in range(len(i[3])):
-            a=p[i[2][j][1]:i[2][j][3],i[2][j][0]:i[2][j][2],0:3]
-            a=Image.fromarray(a)
-            name=uuid.uuid4().hex
-            names.append(name+'.png')
-            a.save('recortes/'+name+'.png')
-            split = np.random.rand(1)[0]
-            if split<0.7:
-                spl='train'
-            else:
-                spl='test'
-            splits.append(spl)
-            labl.append(i[3][j])
-    df=pd.DataFrame()
-    df['names']=names
-    df['split']=splits
-    df['label']=labl
-    df=df.replace(dic)
-    df.to_csv('metadata.csv')
-    return df
 
         
 def build_sources_from_metadata(metadata, data_dir, mode='train', exclude_labels=None):
@@ -104,8 +37,8 @@ def imshow_batch_of_three(batch, show_label=True):
         if show_label:
             axarr[i].set(xlabel='label = {}'.format(label_batch[i]))
 
-def preprocess_image(image):
-    image = tf.image.resize(image, size=(32, 32))
+def preprocess_image(image,siz):
+    image = tf.image.resize(image, size=(siz,siz))
     image = image / 255.0
     return image
 
@@ -113,7 +46,7 @@ def augment_image(image):
     return image
 
 def make_dataset(sources, training=False, batch_size=1,
-    num_epochs=1, num_parallel_calls=1, shuffle_buffer_size=None, pixels = 32, target = 1):
+    num_epochs=1, num_parallel_calls=1, shuffle_buffer_size=None, pixels = 224, target = 1):
     """
     Returns an operation to iterate over the dataset specified in sources
     Args:
