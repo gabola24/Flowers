@@ -30,7 +30,7 @@ def build_sources_from_metadata(metadata, data_dir, mode='train', exclude_labels
 def imshow_batch_(batch, show_label=True,cant=3):
     label_batch = batch[1].numpy()
     image_batch = batch[0].numpy()
-    fig, axarr = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
+    fig, axarr = plt.subplots(1, cant, figsize=(15, 5), sharey=True)
     for i in range(cant):
         img = image_batch[i, ...]
         axarr[i].imshow(img)
