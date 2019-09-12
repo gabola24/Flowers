@@ -110,7 +110,7 @@ def build_standard_cnn(
     for num_filters in num_filters_per_convolutional_layer[1:]:
         if num_filters==0:
             model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2), strides=(2,2)))
-        if num_filters==-1:
+        elif num_filters==-1:
             model.add(tf.keras.layers.BatchNormalization())        
         else:
             model.add(
@@ -253,46 +253,6 @@ def ResNet50(input_shape = (224, 224, 3), classes = 6):
 
     return model
 
-
-def build_standard_cnn2(
-    num_filters_per_convolutional_layer,
-    num_units_per_dense_layer,
-    input_shape,
-    num_classes,
-    activation='relu',
-    ):
-    """
-    """
-    model = tf.keras.Sequential()
-    model.add(
-        tf.keras.layers.Conv2D(
-            filters=num_filters_per_convolutional_layer[0],
-            kernel_size=(3, 3), activation=activation,
-            padding='same', input_shape=input_shape)
-        )    
-    for num_filters in num_filters_per_convolutional_layer[1:]:
-        if num_filters==0:
-            model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2), strides=(2,2)))
-        if num_filters==-1:
-            model.add(tf.keras.layers.BatchNormalization())        
-        else:
-            model.add(
-                tf.keras.layers.Conv2D(
-                    filters=num_filters,
-                    kernel_size=(3, 3), activation=activation,
-                    padding='same')
-            )
-        
-    model.add(tf.keras.layers.Flatten())
-    for num_units in num_units_per_dense_layer:
-        if num_units==0:
-            model.add(tf.keras.layers.Dropout(0.4))
-        else:
-            model.add(tf.keras.layers.Dense(num_units, activation=activation))
-        
-    model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
-    
-    return model
 
 def standard_cnn(
     num_filters_per_convolutional_layer,
