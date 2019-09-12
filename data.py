@@ -116,7 +116,7 @@ def imshow_with_predictions(model, batch, show_label=True):
         axarr[i].set(xlabel=msg)     
         
         
- def plot_confusion_matrix(y_true, y_pred, classes,
+def plot_confusion_matrix(y_true, y_pred, classes,
                           normalize=False,
                           title=None,
                           cmap=plt.cm.Blues):
