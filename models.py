@@ -327,7 +327,7 @@ def standard_cnn(
         
     model.add(tf.keras.layers.Flatten())
     for num_units in num_units_per_dense_layer:
-        if (0<num_units<1:
+        if (0<num_units<1):
             model.add(tf.keras.layers.Dropout(num_units))
         else:
             print(num_units)
