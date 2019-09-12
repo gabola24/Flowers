@@ -315,9 +315,8 @@ def standard_cnn(
     for num_filters in num_filters_per_convolutional_layer[1:]:
         if num_filters==0:
             model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2), strides=(2,2)))
-        if num_filters==-1:
-            model.add(tf.keras.layers.BatchNormalization())
-        
+        elif num_filters==-1:
+            model.add(tf.keras.layers.BatchNormalization())        
         else:
             model.add(
                 tf.keras.layers.Conv2D(
@@ -328,8 +327,8 @@ def standard_cnn(
         
     model.add(tf.keras.layers.Flatten())
     for num_units in num_units_per_dense_layer:
-        if num_units==0:
-            model.add(tf.keras.layers.Dropout(0.4))
+        if (0<num_units<1:
+            model.add(tf.keras.layers.Dropout(num_units))
         else:
             print(num_units)
             model.add(tf.keras.layers.Dense(num_units, activation=activation))
