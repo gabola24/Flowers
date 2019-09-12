@@ -110,7 +110,8 @@ def build_standard_cnn(
     for num_filters in num_filters_per_convolutional_layer[1:]:
         if num_filters==0:
             model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2), strides=(2,2)))
-        
+        elif num_filters==-1:
+            model.add(tf.keras.layers.BatchNormalization())        
         else:
             model.add(
                 tf.keras.layers.Conv2D(

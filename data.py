@@ -46,9 +46,9 @@ def augment_image(image):
     image = tf.image.random_brightness(image, max_delta=0.2)
     image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
     image = tf.image.random_flip_left_right(image)
-    #image = tf.image.random_flip_up_down(image)
-    image = tf.image.random_hue(image, max_delta=0.2)
-    image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
+    image = tf.image.random_flip_up_down(image)
+    #image = tf.image.random_hue(image, max_delta=0.2)
+    #image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
     return image
 
 def make_dataset(sources, training=False, batch_size=1,
@@ -100,60 +100,19 @@ def make_dataset(sources, training=False, batch_size=1,
     ds = ds.prefetch(1)
 
     return ds
-
-def make_dataset2(sources, training=False, batch_size=1, num_epochs=1, num_parallel_calls=1, shuffle_buffer_size=None):
-    import tensorflow as tf
-    """
-    Returns an operation to iterate over the dataset specified in sources
-
-    Args:
-        sources (list): A list of (filepath, label_id) pairs.
-        training (bool): whether to apply certain processing steps
-            defined only in training mode (e.g. shuffle).
-        batch_size (int): number of elements the resulting tensor
-            should have.
-        num_epochs (int): Number of epochs to repeat the dataset.
-        num_parallel_calls (int): Number of parallel calls to use in
-            map operations.
-        shuffle_buffer_size (int): Number of elements from this dataset
-            from which the new dataset will sample.
-
-    Returns:
-        A tf.data.Dataset object. It will return a tuple images of shape
-        [N, H, W, CH] and labels shape [N, 1].
-    """
-    def load(row):
-        filepath = row['image']
-        img = tf.io.read_file(filepath)
-        img = tf.io.decode_jpeg(img)
-        return img, row['label']
-
-    if shuffle_buffer_size is None:
-        shuffle_buffer_size = batch_size*4
-
-    images, labels = zip(*sources)
-    
-    ds = tf.data.Dataset.from_tensor_slices({
-        'image': list(images), 'label': list(labels)}) 
- #line from the link. As with most code, if you remove an arbitrary line, expectin
-    if training:
-        ds = ds.shuffle(shuffle_buffer_size)
-    
-    ds = ds.map(load, num_parallel_calls=num_parallel_calls)
-    ds = ds.map(lambda x,y: (preprocess_image(x), y))
-    
-    if training:
-        ds = ds.map(lambda x,y: (augment_image(x), y))
-        
-    ds = ds.repeat(count=num_epochs)
-    ds = ds.batch(batch_size=batch_size)
-    ds = ds.prefetch(1)
-
-    return ds
-       
-        
-        
-        
+def imshow_with_predictions(model, batch, show_label=True):
+    label_batch = batch[1].numpy()
+    image_batch = batch[0].numpy()
+    pred_batch = model.predict(image_batch)
+    fig, axarr = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
+    for i in range(3):
+        img = image_batch[i, ...]
+        axarr[i].imshow(img)
+        pred = int(np.argmax(pred_batch[i]))
+        msg = f'pred = {pred}'
+        if show_label:
+            msg += f', label = {label_batch[i]}'
+        axarr[i].set(xlabel=msg)     
         
         
         
