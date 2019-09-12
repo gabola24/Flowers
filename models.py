@@ -122,8 +122,8 @@ def build_standard_cnn(
         
     model.add(tf.keras.layers.Flatten())
     for num_units in num_units_per_dense_layer:
-        if 0 < num_units < 1:
-            model.add(tf.keras.layers.Dropout(num_units))
+        if num_units==0:
+            model.add(tf.keras.layers.Dropout(0.5))
         else:
             model.add(tf.keras.layers.Dense(num_units, activation=activation))
         
